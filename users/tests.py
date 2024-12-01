@@ -38,6 +38,17 @@ class SignupTests(Tests):
         self.assertTrue(CustomUser.objects.filter(email=self.nonexistent_user_data['email']).exists())
 
 
+    def test_signup_an_existing_user(self):
+        """ Test the creation of an existing user """
+
+        # Test with an active user
+        response = self.client.post(self.signup_url, self.active_user_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Test with an inactive user
+        response = self.client.post(self.signup_url, self.inactive_user_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class LoginTests(Tests):
 
