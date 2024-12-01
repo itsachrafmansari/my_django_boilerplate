@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from rest_framework import status
 from rest_framework.test import APIClient
 
 from .models import CustomUser
@@ -26,6 +27,16 @@ class SignupTests(Tests):
         self.email_verification_url = lambda uidb64, token: reverse(
             'email-verification-view', args=(uidb64, token)
         )
+
+
+    def test_signup_a_new_user(self):
+        """ Test the creation of a new user """
+
+        response = self.client.post(self.signup_url, self.nonexistent_user_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['message'], 'User created. Please check your email to verify your account.')
+        self.assertTrue(CustomUser.objects.filter(email=self.nonexistent_user_data['email']).exists())
+
 
 
 class LoginTests(Tests):
