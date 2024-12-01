@@ -1,5 +1,8 @@
+from django.contrib.auth.tokens import default_token_generator
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -55,6 +58,21 @@ class SignupTests(Tests):
 
         response = self.client.post(self.signup_url, {'email': self.nonexistent_user_data['email'], 'password': ''})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_email_confirmation_with_valid_token(self):
+        """ Test email confirmation with a valid token """
+
+        uidb64 = urlsafe_base64_encode(force_bytes(self.inactive_user.pk))
+        token = default_token_generator.make_token(self.inactive_user)
+        url = self.email_verification_url(uidb64, token)
+
+        response = self.client.get(url)
+        self.inactive_user.refresh_from_db() # Refresh the user instance from the database
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], 'Email verified successfully.')
+        self.assertTrue(self.inactive_user.is_active)
 
 
 class LoginTests(Tests):
