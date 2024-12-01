@@ -148,3 +148,14 @@ class LogoutTests(Tests):
     def setUp(self):
         super().setUp()
         self.logout_url = reverse('logout-view')
+
+
+    def test_logout_with_valid_token(self):
+        """ Test logout with valid refresh token """
+
+        tokens = self.client.post(reverse('login-view'), self.active_user_data).data
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {tokens["access"]}')
+        response = self.client.post(self.logout_url, {"refresh": tokens["refresh"]})
+        self.assertEqual(response.status_code, status.HTTP_205_RESET_CONTENT)
+        self.assertEqual(response.data['message'], 'Logged out successfully')
