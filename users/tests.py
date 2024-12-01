@@ -109,6 +109,15 @@ class LoginTests(Tests):
         )
 
 
+    def test_login_active_user(self):
+        """ Test the login with an active user """
+
+        response = self.client.post(self.login_url, self.active_user_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('access', response.data)
+        self.assertIn('refresh', response.data)
+
+
 class LogoutTests(Tests):
 
     def setUp(self):
