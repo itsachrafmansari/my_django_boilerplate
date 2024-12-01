@@ -75,6 +75,17 @@ class SignupTests(Tests):
         self.assertTrue(self.inactive_user.is_active)
 
 
+    def test_email_confirmation_with_invalid_token(self):
+        """ Test email confirmation with an invalid token """
+
+        uidb64 = urlsafe_base64_encode(force_bytes(self.inactive_user.pk))
+        token = "invalid-token"
+        url = self.email_verification_url(uidb64, token)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 class LoginTests(Tests):
 
     def setUp(self):
