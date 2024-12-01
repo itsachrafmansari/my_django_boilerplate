@@ -149,13 +149,25 @@ class LogoutTests(Tests):
         super().setUp()
         self.logout_url = reverse('logout-view')
 
+        self.get_login_tokens = lambda user_data: self.client.post(reverse('login-view'), user_data).data
+
 
     def test_logout_with_valid_token(self):
         """ Test logout with valid refresh token """
 
-        tokens = self.client.post(reverse('login-view'), self.active_user_data).data
+        tokens = self.get_login_tokens(self.active_user_data)
 
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {tokens["access"]}')
         response = self.client.post(self.logout_url, {"refresh": tokens["refresh"]})
         self.assertEqual(response.status_code, status.HTTP_205_RESET_CONTENT)
         self.assertEqual(response.data['message'], 'Logged out successfully')
+
+
+    def test_logout_invalid_refresh_token(self):
+        """ Test logout with an invalid refresh token """
+
+        tokens = self.get_login_tokens(self.active_user_data)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {tokens["access"]}')
+        response = self.client.post(self.logout_url, {'refresh': 'invalidToken'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
