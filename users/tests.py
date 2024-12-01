@@ -50,6 +50,13 @@ class SignupTests(Tests):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
+    def test_signup_with_empty_password(self):
+        """ Test the creation of a new user but with an empty password """
+
+        response = self.client.post(self.signup_url, {'email': self.nonexistent_user_data['email'], 'password': ''})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 class LoginTests(Tests):
 
     def setUp(self):
