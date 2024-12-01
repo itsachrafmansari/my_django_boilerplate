@@ -127,6 +127,22 @@ class LoginTests(Tests):
         self.assertNotIn('refresh', response.data)
 
 
+    def test_login_invalid_credentials(self):
+        """ Test the login with a non-existing user or invalid credentials """
+
+        # Test the login with a non-existing user
+        response = self.client.post(self.login_url, self.nonexistent_user_data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertNotIn('access', response.data)
+        self.assertNotIn('refresh', response.data)
+
+        # Test the login with wrong credentials
+        response = self.client.post(self.login_url, {'email': self.active_user_data['email'], 'password': '<>'})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertNotIn('access', response.data)
+        self.assertNotIn('refresh', response.data)
+
+
 class LogoutTests(Tests):
 
     def setUp(self):
