@@ -118,6 +118,15 @@ class LoginTests(Tests):
         self.assertIn('refresh', response.data)
 
 
+    def test_login_inactive_user(self):
+        """ Test the login with an inactive user """
+
+        response = self.client.post(self.login_url, self.inactive_user_data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertNotIn('access', response.data)
+        self.assertNotIn('refresh', response.data)
+
+
 class LogoutTests(Tests):
 
     def setUp(self):
