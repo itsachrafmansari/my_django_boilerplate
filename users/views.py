@@ -11,8 +11,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from users.models import CustomUser
-from users.serializers import UserSerializer
+from .models import CustomUser
+from .serializers import UserSerializer
 
 
 class SignupView(APIView):
@@ -77,7 +77,7 @@ class LoginView(APIView):
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
-            })
+            }, status=status.HTTP_200_OK)
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
