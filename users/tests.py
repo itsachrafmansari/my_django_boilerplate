@@ -206,6 +206,27 @@ class LoginTests(Tests):
         response = self.client.post(url, {'password': ''})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+
+    def test_password_reset_confirm_with_invalid_uid_or_token(self):
+        """ Test password reset confirmation with invalid uid or token"""
+
+        # Test password reset confirmation with invalid uid
+        uidb64 = urlsafe_base64_encode(force_bytes(-1))
+        token = default_token_generator.make_token(self.active_user)
+        url = self.password_reset_confirm_url(uidb64, token)
+
+        response = self.client.post(url, {'password': 'password'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Test password reset confirmation with invalid token
+        uidb64 = urlsafe_base64_encode(force_bytes(self.active_user.pk))
+        token = "invalid-token"
+        url = self.password_reset_confirm_url(uidb64, token)
+
+        response = self.client.post(url, {'password': 'password'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 class LogoutTests(Tests):
 
     def setUp(self):
