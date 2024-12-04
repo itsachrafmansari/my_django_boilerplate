@@ -104,7 +104,7 @@ class LoginTests(Tests):
 
         self.login_url = reverse('login-view')
         self.password_reset_request_url = reverse('password-reset-request-view')
-        self.password_verification = lambda uidb64, token: reverse(
+        self.password_reset_confirm_url = lambda uidb64, token: reverse(
             'password-reset-confirm-view', args=(uidb64, token)
         )
 
@@ -142,6 +142,19 @@ class LoginTests(Tests):
         self.assertNotIn('access', response.data)
         self.assertNotIn('refresh', response.data)
 
+
+    def test_password_reset_request_valid(self):
+        """ Test password reset request with a valid email """
+
+        # Test password reset request with an active user
+        response = self.client.post(self.password_reset_request_url, {'email': self.active_user_data['email']})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], 'Password reset email sent.')
+
+        # Test password reset request with an inactive user
+        response = self.client.post(self.password_reset_request_url, {'email': self.inactive_user_data['email']})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], 'Password reset email sent.')
 
 class LogoutTests(Tests):
 
