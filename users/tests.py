@@ -186,6 +186,26 @@ class LoginTests(Tests):
         response = self.client.post(url, {'password': 'PASSWORD'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+
+    def test_password_reset_confirm_with_empty_password(self):
+        """ Test password reset confirmation with valid uid and token but an empty password """
+
+        # Test password reset confirmation with valid uid and token for an active user
+        uidb64 = urlsafe_base64_encode(force_bytes(self.active_user.pk))
+        token = default_token_generator.make_token(self.active_user)
+        url = self.password_reset_confirm_url(uidb64, token)
+
+        response = self.client.post(url, {'password': ''})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Test password reset confirmation with valid uid and token for an inactive user
+        uidb64 = urlsafe_base64_encode(force_bytes(self.inactive_user.pk))
+        token = default_token_generator.make_token(self.inactive_user)
+        url = self.password_reset_confirm_url(uidb64, token)
+
+        response = self.client.post(url, {'password': ''})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 class LogoutTests(Tests):
 
     def setUp(self):
