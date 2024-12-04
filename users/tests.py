@@ -156,6 +156,16 @@ class LoginTests(Tests):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['message'], 'Password reset email sent.')
 
+
+    def test_password_reset_request_nonexistent_user(self):
+        """ Test password reset request with a non-existing user """
+
+        response = self.client.post(self.password_reset_request_url, {"email": self.nonexistent_user_data['email']})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['error'], 'Invalid email.')
+        self.assertNotIn('access', response.data)
+        self.assertNotIn('refresh', response.data)
+
 class LogoutTests(Tests):
 
     def setUp(self):
