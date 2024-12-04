@@ -166,6 +166,26 @@ class LoginTests(Tests):
         self.assertNotIn('access', response.data)
         self.assertNotIn('refresh', response.data)
 
+
+    def test_password_reset_confirm_with_valid_uid_token_password(self):
+        """ Test password reset confirmation with valid uid, token and password """
+
+        # Test password reset confirmation with valid uid and token for an active user
+        uidb64 = urlsafe_base64_encode(force_bytes(self.active_user.pk))
+        token = default_token_generator.make_token(self.active_user)
+        url = self.password_reset_confirm_url(uidb64, token)
+
+        response = self.client.post(url, {'password': 'PASSWORD'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Test password reset confirmation with valid uid and token for an inactive user
+        uidb64 = urlsafe_base64_encode(force_bytes(self.inactive_user.pk))
+        token = default_token_generator.make_token(self.inactive_user)
+        url = self.password_reset_confirm_url(uidb64, token)
+
+        response = self.client.post(url, {'password': 'PASSWORD'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 class LogoutTests(Tests):
 
     def setUp(self):
