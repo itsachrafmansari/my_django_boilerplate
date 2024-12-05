@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Dummy, DummyCategory
+
+admin.site.register(DummyCategory)
+admin.site.register(Dummy)
