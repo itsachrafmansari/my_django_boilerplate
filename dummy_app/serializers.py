@@ -9,7 +9,7 @@ class DummyCategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class DummySerializer(serializers.Serializer):
+class DummySerializer(serializers.ModelSerializer):
     class Meta:
         model = Dummy
         fields = '__all__'
