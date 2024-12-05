@@ -1,3 +1,6 @@
+from datetime import timedelta, datetime
+
+import jwt
 from django.contrib.auth.tokens import default_token_generator
 from django.test import TestCase
 from django.urls import reverse
@@ -5,8 +8,24 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from rest_framework import status
 from rest_framework.test import APIClient
+from rest_framework_simplejwt.settings import api_settings
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import CustomUser
+
+
+def generate_expired_token(user):
+    """ Helper to generate an expired refresh token """
+
+    refresh = RefreshToken.for_user(user)
+    payload = refresh.payload
+
+    # Manipulate the expiration time to make it expired
+    payload['exp'] = datetime.utcnow() - timedelta(days=1)  # Set expiration to 1 day in the past
+
+    # Encode the token with the manipulated payload
+    expired_token = jwt.encode(payload, api_settings.SIGNING_KEY, algorithm='HS256')
+    return expired_token
 
 
 class Tests(TestCase):
@@ -254,4 +273,14 @@ class LogoutTests(Tests):
 
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {tokens["access"]}')
         response = self.client.post(self.logout_url, {'refresh': 'invalidToken'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_logout_expired_token(self):
+        """ Test logout with an expired refresh token """
+
+        refresh_token = generate_expired_token(self.active_user)
+        access_token = self.get_login_tokens(self.active_user_data)["access"]
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        response = self.client.post(self.logout_url, {'refresh': refresh_token})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
