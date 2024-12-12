@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -35,3 +35,17 @@ class DummyView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk=None):
+        if pk:
+            try:
+                obj = Dummy.objects.get(id=pk)
+                obj.delete()
+            except Dummy.DoesNotExist:
+                return Response({"error": "Object not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({'error': 'Missing 1 expected parameter PK'}, status=status.HTTP_400_BAD_REQUEST)
+
+class DummyViewProtected(DummyView):
+    permission_classes = (IsAuthenticated,)
