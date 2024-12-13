@@ -5,6 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from users.models import CustomUser
 from .models import DummyCategory, Dummy
 
 
@@ -65,3 +66,13 @@ class DummyTest(TestCase):
     def test_delete_dummy_not_found(self):
         response = self.client.delete(self.dummy_url(1000000))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class DummyProtectedTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.dummy_url = lambda pk=None: reverse('dummy-object-protected-view', args=(pk,)) if pk else reverse('dummy-objects-protected-view')
+
+        self.user = CustomUser.objects.create_user(email='test@test.com', password='password', is_active=True)
+        self.category = DummyCategory.objects.create(label="Category 1")
+        self.dummy = Dummy.objects.create(label="Dummy 1", description="Description 1", category=self.category)
