@@ -23,3 +23,7 @@ class DummyTest(TestCase):
         response = self.client.get(self.dummy_url(1))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['label'], self.dummy.label)
+
+    def test_get_single_dummy_not_found(self):
+        response = self.client.get(self.dummy_url(1000000))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
