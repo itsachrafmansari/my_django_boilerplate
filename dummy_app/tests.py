@@ -167,3 +167,14 @@ class DummyProtectedTest(TestCase):
         response = self.client.delete(self.dummy_url(1))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.client.logout()
+
+    def test_delete_dummy_not_found(self):
+        # Without authentication
+        response = self.client.delete(self.dummy_url(1000000))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # With authentication
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.dummy_url(1000000))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.client.logout()
