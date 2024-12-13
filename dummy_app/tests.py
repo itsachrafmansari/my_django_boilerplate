@@ -44,3 +44,16 @@ class DummyTest(TestCase):
         response = self.client.post(self.dummy_url(), data=json.dumps(data), content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data), 3)
+
+    def test_create_dummy_invalid_payload(self):
+        data = {'label': '', 'description': 'Some text', 'category': self.category.id}
+        response = self.client.post(self.dummy_url(), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        data = {'label': 'Dummy Label', 'description': '', 'category': self.category.id}
+        response = self.client.post(self.dummy_url(), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        data = {'label': 'Dummy Label', 'description': 'Some text', 'category': ''}
+        response = self.client.post(self.dummy_url(), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
