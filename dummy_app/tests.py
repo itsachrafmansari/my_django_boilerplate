@@ -61,3 +61,7 @@ class DummyTest(TestCase):
     def test_delete_dummy(self):
         response = self.client.delete(self.dummy_url(1))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_delete_dummy_not_found(self):
+        response = self.client.delete(self.dummy_url(1000000))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
