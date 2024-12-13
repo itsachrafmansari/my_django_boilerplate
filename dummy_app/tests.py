@@ -111,3 +111,17 @@ class DummyProtectedTest(TestCase):
         response = self.client.get(self.dummy_url(1000000))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.client.logout()
+
+    def test_create_dummy(self):
+        # Without authentication
+        data = {'label': 'Dummy Label', 'description': 'Some text', 'category': self.category.id}
+        response = self.client.post(self.dummy_url(), data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # With authentication
+        self.client.force_authenticate(user=self.user)
+        data = {'label': 'Dummy Label', 'description': 'Some text', 'category': self.category.id}
+        response = self.client.post(self.dummy_url(), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['label'], data['label'])
+        self.client.logout()
