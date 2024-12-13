@@ -125,3 +125,34 @@ class DummyProtectedTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['label'], data['label'])
         self.client.logout()
+
+    def test_create_dummy_invalid_payload(self):
+        # Without authentication
+        data = {'label': '', 'description': 'Some text', 'category': self.category.id}
+        response = self.client.post(self.dummy_url(), data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        data = {'label': 'Dummy Label', 'description': '', 'category': self.category.id}
+        response = self.client.post(self.dummy_url(), data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        data = {'label': 'Dummy Label', 'description': 'Some text', 'category': ''}
+        response = self.client.post(self.dummy_url(), data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # With authentication
+        self.client.force_authenticate(user=self.user)
+
+        data = {'label': '', 'description': 'Some text', 'category': self.category.id}
+        response = self.client.post(self.dummy_url(), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        data = {'label': 'Dummy Label', 'description': '', 'category': self.category.id}
+        response = self.client.post(self.dummy_url(), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        data = {'label': 'Dummy Label', 'description': 'Some text', 'category': ''}
+        response = self.client.post(self.dummy_url(), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.client.logout()
