@@ -100,3 +100,14 @@ class DummyProtectedTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['label'], self.dummy.label)
         self.client.logout()
+
+    def test_get_single_dummy_not_found(self):
+        # Without authentication
+        response = self.client.get(self.dummy_url(1000000))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        # With authentication
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(self.dummy_url(1000000))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.client.logout()
