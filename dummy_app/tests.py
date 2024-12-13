@@ -57,3 +57,7 @@ class DummyTest(TestCase):
         data = {'label': 'Dummy Label', 'description': 'Some text', 'category': ''}
         response = self.client.post(self.dummy_url(), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_delete_dummy(self):
+        response = self.client.delete(self.dummy_url(1))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
